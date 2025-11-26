@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Викторина о буллинге</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-image: url('your_background.jpg');
+    background-size: cover;
+    background-position: center;
+    font-family: Arial, sans-serif;
+    color: white;
+  }
+
+  .top-bar {
+    width: 100%;
+    height: 90px;
+    background: #00c7c7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    font-weight: bold;
+    flex-direction: column;
+  }
+
+  .score {
+    font-size: 20px;
+    margin-top: 6px;
+  }
+
+  .quiz-box {
+    width: 92%;
+    background: rgba(0,0,0,0.55);
+    margin: 25px auto;
+    border-radius: 14px;
+    padding: 18px;
+  }
+
+  .question {
+    font-size: 20px;
+    margin-bottom: 18px;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .answer {
+    width: 100%;
+    padding: 16px;
+    margin: 10px 0;
+    background: #008b8b;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    color: white;
+    transition: 0.2s;
+  }
+
+  .answer:active {
+    background: #009f9f;
+    transform: scale(0.98);
+  }
+
+  .red-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: red;
+    display: none;
+    z-index: 999;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+  Викторина о Буллинге
+  <div id="score" class="score">Баллы: 0</div>
+</div>
+
+<div class="quiz-box">
+  <div id="question" class="question"></div>
+  <div id="answers"></div>
+</div>
+
+<div id="red" class="red-screen"></div>
+
+<script>
+  const quiz = [
+    { q: "Что такое буллинг?", a: ["Травля и давление на человека", "Весёлая шутка", "Учёба", "Дружба"], correct: 0 },
+    { q: "Какая форма буллинга существует?", a: ["Физическая, словесная, онлайн", "Только физическая", "Только онлайн", "Не существует"], correct: 0 },
+    { q: "Как называется буллинг в интернете?", a: ["Кибербуллинг", "Инфобуллинг", "Хайпинг", "Стриминг"], correct: 0 },
+    { q: "Что должен делать свидетель буллинга?", a: ["Сообщить взрослому", "Снимать на телефон", "Смеяться", "Игнорировать"], correct: 0 },
+    { q: "Кто может стать жертвой буллинга?", a: ["Любой человек", "Только дети", "Только взрослые", "Никто"], correct: 0 },
+    { q: "Почему буллинг опасен?", a: ["Наносит вред человеку", "Это игра", "Это шутка", "Все любят буллинг"], correct: 0 },
+    { q: "Как реагировать на обидные слова?", a: ["Спокойно, без агрессии", "Сразу драться", "Молча уйти навсегда", "Снимать видео"], correct: 0 },
+    { q: "К кому можно обратиться за помощью?", a: ["Родителям и учителям", "Случайным людям", "Хейтерам", "Никому"], correct: 0 },
+    { q: "Что НЕ является буллингом?", a: ["Дружеская шутка без обид", "Оскорбления", "Угрозы", "Издевательства"], correct: 0 },
+    { q: "Если тебя буллят онлайн, что делать?", a: ["Заблокировать и сообщить", "Отвечать грубостью", "Удалиться", "Игнорировать"], correct: 0 },
+    { q: "Что помогает остановить буллинг?", a: ["Поддержка взрослых", "Тишина", "Страх", "Смех"], correct: 0 },
+    { q: "Можно ли шутить над внешностью?", a: ["Нельзя", "Можно всегда", "Если смешно", "Если друзья рядом"], correct: 0 },
+    { q: "Что чувствует жертва буллинга?", a: ["Стресс и страх", "Счастье", "Гордость", "Смех"], correct: 0 },
+    { q: "Почему важно говорить о буллинге?", a: ["Чтобы прекратить его", "Чтобы было весело", "Чтобы игнорировали", "Не важно"], correct: 0 },
+    { q: "Должен ли человек стыдиться, если его травят?", a: ["Нет", "Да", "Иногда", "Если друзья говорят"], correct: 0 },
+    { q: "Буллинг — это…", a: ["Нарушение прав человека", "Спорт", "Хобби", "Развлечение"], correct: 0 },
+    { q: "Что делать, если друга буллят?", a: ["Поддержать и сообщить взрослому", "Смеяться", "Снимать видео", "Не замечать"], correct: 0 },
+    { q: "Можно ли остановить буллинг одному?", a: ["Иногда, но лучше с помощью взрослых", "Всегда одному", "Никогда", "Не важно"], correct: 0 },
+    { q: "Какие слова могут ранить?", a: ["Оскорбления", "Комплименты", "Доброта", "Поддержка"], correct: 0 },
+    { q: "Главное правило против буллинга?", a: ["Не молчать", "Молчать", "Смеяться", "Снимать"], correct: 0 }
+  ];
+
+  let stage = 0;
+  let score = 0;
+
+  function updateScore() {
+    document.getElementById("score").innerText = "Баллы: " + score;
+  }
+
+  function shuffleAnswers(question) {
+    const arr = question.a.map((text, index) => ({
+      text: text,
+      index: index
+    }));
+
+    // перемешивание Фишера-Йетса
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+
+    return arr;
+  }
+
+  function loadQuestion() {
+    document.getElementById("question").innerText = quiz[stage].q;
+    const answersBox = document.getElementById("answers");
+    answersBox.innerHTML = "";
+
+    const shuffled = shuffleAnswers(quiz[stage]);
+
+    shuffled.forEach(item => {
+      const btn = document.createElement("button");
+      btn.className = "answer";
+      btn.innerText = item.text;
+      btn.onclick = () => checkAnswer(item.index);
+      answersBox.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(choice) {
+    if (choice === quiz[stage].correct) {
+      score += 1;
+      updateScore();
+      stage++;
+      if (stage < quiz.length) loadQuestion();
+      else alert("Ты прошёл игру! Итоговые баллы: " + score);
+    } else {
+      score -= 1;
+      updateScore();
+      showRedScreen();
+    }
+  }
+
+  function showRedScreen() {
+    const red = document.getElementById("red");
+    red.style.display = "block";
+    setTimeout(() => {
+      red.style.display = "none";
+    }, 3000);
+  }
+
+  loadQuestion();
+  updateScore();
+</script>
+
+</body>
+</html>
